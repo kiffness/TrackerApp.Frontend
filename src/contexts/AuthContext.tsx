@@ -1,5 +1,7 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import * as authApi from '../api/auth.api';
+import { useAppTheme } from './ThemeContext';
+import { DEFAULT_THEME } from '../theme';
 
 interface AuthContextValue {
   isAuthenticated: boolean;
@@ -16,16 +18,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.getItem('isLoggedIn') === 'true'
   );
 
+  const { loadThemeFromApi, setTheme } = useAppTheme();
+
+  // Re-sync theme from API on every page load when already logged in
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadThemeFromApi();
+    }
+  }, []);
+
   const login = async (username: string, password: string) => {
     await authApi.login(username, password);
     localStorage.setItem('isLoggedIn', 'true');
     setIsAuthenticated(true);
+    await loadThemeFromApi();
   };
 
   const logout = async () => {
     await authApi.logout();
     localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('theme');
     setIsAuthenticated(false);
+    setTheme(DEFAULT_THEME);
   };
 
   return (

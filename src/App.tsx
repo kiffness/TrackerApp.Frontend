@@ -1,8 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider, CssBaseline } from '@mui/material';
+import { ThemeProvider as MuiThemeProvider, CssBaseline } from '@mui/material';
 import { createAppTheme } from './theme';
-import { ColorModeContext } from './contexts/ColorModeContext';
+import { AppThemeProvider, useAppTheme } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
@@ -11,27 +11,14 @@ import BloodPressurePage from './pages/BloodPressurePage';
 import ScratchCardsPage from './pages/ScratchCardsPage';
 import ScratchCardSummaryPage from './pages/ScratchCardSummaryPage';
 import ScratchCardReportsPage from './pages/ScratchCardReportsPage';
+import SettingsPage from './pages/SettingsPage';
 
-export default function App() {
-  const [mode, setMode] = useState<'light' | 'dark'>(
-    () => (localStorage.getItem('colorMode') as 'light' | 'dark') ?? 'dark'
-  );
-
-  const colorMode = useMemo(() => ({
-    toggleColorMode: () => {
-      setMode((prev) => {
-        const next = prev === 'light' ? 'dark' : 'light';
-        localStorage.setItem('colorMode', next);
-        return next;
-      });
-    },
-  }), []);
-
-  const theme = useMemo(() => createAppTheme(mode), [mode]);
+function ThemedApp() {
+  const { themeId } = useAppTheme();
+  const theme = useMemo(() => createAppTheme(themeId), [themeId]);
 
   return (
-    <ColorModeContext.Provider value={colorMode}>
-    <ThemeProvider theme={theme}>
+    <MuiThemeProvider theme={theme}>
       <CssBaseline />
       <AuthProvider>
         <BrowserRouter>
@@ -49,11 +36,19 @@ export default function App() {
               <Route path="/scratch-cards" element={<ScratchCardsPage />} />
               <Route path="/scratch-cards/summary" element={<ScratchCardSummaryPage />} />
               <Route path="/scratch-cards/reports" element={<ScratchCardReportsPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
             </Route>
           </Routes>
         </BrowserRouter>
       </AuthProvider>
-    </ThemeProvider>
-    </ColorModeContext.Provider>
+    </MuiThemeProvider>
+  );
+}
+
+export default function App() {
+  return (
+    <AppThemeProvider>
+      <ThemedApp />
+    </AppThemeProvider>
   );
 }
