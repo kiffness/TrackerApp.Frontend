@@ -2,9 +2,13 @@ import { useEffect, useState } from 'react';
 import {
   Box,
   Button,
+  Card,
+  CardContent,
   CircularProgress,
+  Divider,
   IconButton,
   Paper,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -61,12 +65,21 @@ export default function BloodPressurePage() {
 
   return (
     <Box>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+      <Box
+        display="flex"
+        flexDirection={{ xs: 'column', sm: 'row' }}
+        justifyContent="space-between"
+        alignItems={{ xs: 'flex-start', sm: 'center' }}
+        gap={2}
+        mb={3}
+      >
         <Typography variant="h5" fontWeight={700}>Blood Pressure</Typography>
         <Button
           variant="contained"
           startIcon={<AddIcon />}
           onClick={() => setDialogOpen(true)}
+          fullWidth={false}
+          sx={{ alignSelf: { xs: 'stretch', sm: 'auto' } }}
         >
           Add Reading
         </Button>
@@ -79,47 +92,88 @@ export default function BloodPressurePage() {
       ) : readings.length === 0 ? (
         <Typography color="text.secondary">No readings yet. Add your first one!</Typography>
       ) : (
-        <TableContainer component={Paper} elevation={1}>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>Date & Time</TableCell>
-                <TableCell align="center">Systolic</TableCell>
-                <TableCell align="center">Diastolic</TableCell>
-                <TableCell align="center">Pulse</TableCell>
-                <TableCell>Category</TableCell>
-                <TableCell>Notes</TableCell>
-                <TableCell align="right" />
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {readings.map((r) => {
-                const cat = getCategory(r.systolic, r.diastolic);
-                return (
-                  <TableRow key={r.id} hover>
-                    <TableCell>{new Date(r.recordedAt).toLocaleString()}</TableCell>
-                    <TableCell align="center"><strong>{r.systolic}</strong></TableCell>
-                    <TableCell align="center"><strong>{r.diastolic}</strong></TableCell>
-                    <TableCell align="center">{r.pulse}</TableCell>
-                    <TableCell>
-                      <Chip label={cat.label} color={cat.color} size="small" />
-                    </TableCell>
-                    <TableCell sx={{ color: 'text.secondary', fontStyle: r.notes ? 'normal' : 'italic' }}>
-                      {r.notes ?? '—'}
-                    </TableCell>
-                    <TableCell align="right">
+        <>
+          {/* Mobile: card list */}
+          <Stack spacing={2} sx={{ display: { xs: 'flex', sm: 'none' } }}>
+            {readings.map((r) => {
+              const cat = getCategory(r.systolic, r.diastolic);
+              return (
+                <Card key={r.id} elevation={1}>
+                  <CardContent sx={{ pb: '12px !important' }}>
+                    <Box display="flex" justifyContent="space-between" alignItems="flex-start">
+                      <Typography variant="body2" color="text.secondary">
+                        {new Date(r.recordedAt).toLocaleString()}
+                      </Typography>
                       <Tooltip title="Delete">
-                        <IconButton size="small" color="error" onClick={() => handleDelete(r.id)}>
+                        <IconButton size="small" color="error" onClick={() => handleDelete(r.id)} sx={{ mt: -0.5 }}>
                           <DeleteIcon fontSize="small" />
                         </IconButton>
                       </Tooltip>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </TableContainer>
+                    </Box>
+                    <Typography variant="h5" fontWeight={700} mt={0.5}>
+                      {r.systolic}/{r.diastolic}
+                      <Typography component="span" variant="body1" color="text.secondary" ml={1}>
+                        · {r.pulse} bpm
+                      </Typography>
+                    </Typography>
+                    <Box mt={1} display="flex" alignItems="center" gap={1} flexWrap="wrap">
+                      <Chip label={cat.label} color={cat.color} size="small" />
+                      {r.notes && (
+                        <>
+                          <Divider orientation="vertical" flexItem />
+                          <Typography variant="body2" color="text.secondary">{r.notes}</Typography>
+                        </>
+                      )}
+                    </Box>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </Stack>
+
+          {/* Desktop: table */}
+          <TableContainer component={Paper} elevation={1} sx={{ display: { xs: 'none', sm: 'block' } }}>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Date & Time</TableCell>
+                  <TableCell align="center">Systolic</TableCell>
+                  <TableCell align="center">Diastolic</TableCell>
+                  <TableCell align="center">Pulse</TableCell>
+                  <TableCell>Category</TableCell>
+                  <TableCell>Notes</TableCell>
+                  <TableCell align="right" />
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {readings.map((r) => {
+                  const cat = getCategory(r.systolic, r.diastolic);
+                  return (
+                    <TableRow key={r.id} hover>
+                      <TableCell>{new Date(r.recordedAt).toLocaleString()}</TableCell>
+                      <TableCell align="center"><strong>{r.systolic}</strong></TableCell>
+                      <TableCell align="center"><strong>{r.diastolic}</strong></TableCell>
+                      <TableCell align="center">{r.pulse}</TableCell>
+                      <TableCell>
+                        <Chip label={cat.label} color={cat.color} size="small" />
+                      </TableCell>
+                      <TableCell sx={{ color: 'text.secondary', fontStyle: r.notes ? 'normal' : 'italic' }}>
+                        {r.notes ?? '—'}
+                      </TableCell>
+                      <TableCell align="right">
+                        <Tooltip title="Delete">
+                          <IconButton size="small" color="error" onClick={() => handleDelete(r.id)}>
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </>
       )}
 
       <AddBloodPressureDialog

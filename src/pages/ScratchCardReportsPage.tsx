@@ -5,7 +5,12 @@ import {
   Card,
   CardContent,
   CircularProgress,
+  FormControl,
+  Grid,
+  InputLabel,
+  MenuItem,
   Paper,
+  Select,
   Table,
   TableBody,
   TableCell,
@@ -41,7 +46,7 @@ interface StatCardProps {
 
 function StatCard({ label, value, icon, color }: StatCardProps) {
   return (
-    <Card elevation={1} sx={{ flex: 1, minWidth: 140 }}>
+    <Card elevation={1}>
       <CardContent>
         <Box display="flex" justifyContent="space-between" alignItems="flex-start">
           <Box>
@@ -87,13 +92,37 @@ export default function ScratchCardReportsPage() {
 
   return (
     <Box>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={1} flexWrap="wrap" gap={2}>
+      <Box
+        display="flex"
+        flexDirection={{ xs: 'column', sm: 'row' }}
+        justifyContent="space-between"
+        alignItems={{ xs: 'flex-start', sm: 'center' }}
+        gap={2}
+        mb={1}
+      >
         <Typography variant="h5" fontWeight={700}>Scratch Card Report</Typography>
+
+        {/* Mobile: Select */}
+        <FormControl size="small" fullWidth sx={{ display: { xs: 'flex', sm: 'none' } }}>
+          <InputLabel>Period</InputLabel>
+          <Select
+            value={period}
+            label="Period"
+            onChange={(e) => setPeriod(e.target.value as ReportPeriod)}
+          >
+            {PERIODS.map((p) => (
+              <MenuItem key={p.value} value={p.value}>{p.label}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        {/* Desktop: ToggleButtonGroup */}
         <ToggleButtonGroup
           value={period}
           exclusive
           onChange={(_, val) => { if (val) setPeriod(val); }}
           size="small"
+          sx={{ display: { xs: 'none', sm: 'flex' } }}
         >
           {PERIODS.map((p) => (
             <ToggleButton key={p.value} value={p.value}>{p.label}</ToggleButton>
@@ -112,45 +141,53 @@ export default function ScratchCardReportsPage() {
       ) : report && (
         <>
           {/* Summary stat cards */}
-          <Box display="flex" gap={2} flexWrap="wrap" mb={4}>
-            <StatCard
-              label="Cards Bought"
-              value={String(report.cardCount)}
-              icon={<CasinoIcon />}
-            />
-            <StatCard
-              label="Total Spent"
-              value={fmt(report.totalSpent)}
-              icon={<TrendingDownIcon />}
-              color="error.main"
-            />
-            <StatCard
-              label="Total Won"
-              value={fmt(report.totalWon)}
-              icon={<TrendingUpIcon />}
-              color="success.main"
-            />
-            <StatCard
-              label={isProfit ? 'Net Profit' : 'Net Loss'}
-              value={fmt(report.netProfit)}
-              icon={isProfit ? <TrendingUpIcon /> : <TrendingDownIcon />}
-              color={isProfit ? 'success.main' : 'error.main'}
-            />
-          </Box>
+          <Grid container spacing={2} mb={4}>
+            <Grid item xs={6} sm={3}>
+              <StatCard
+                label="Cards Bought"
+                value={String(report.cardCount)}
+                icon={<CasinoIcon />}
+              />
+            </Grid>
+            <Grid item xs={6} sm={3}>
+              <StatCard
+                label="Total Spent"
+                value={fmt(report.totalSpent)}
+                icon={<TrendingDownIcon />}
+                color="error.main"
+              />
+            </Grid>
+            <Grid item xs={6} sm={3}>
+              <StatCard
+                label="Total Won"
+                value={fmt(report.totalWon)}
+                icon={<TrendingUpIcon />}
+                color="success.main"
+              />
+            </Grid>
+            <Grid item xs={6} sm={3}>
+              <StatCard
+                label={isProfit ? 'Net Profit' : 'Net Loss'}
+                value={fmt(report.netProfit)}
+                icon={isProfit ? <TrendingUpIcon /> : <TrendingDownIcon />}
+                color={isProfit ? 'success.main' : 'error.main'}
+              />
+            </Grid>
+          </Grid>
 
           {/* Breakdown by card value */}
           <Typography variant="h6" fontWeight={600} mb={2}>By Card Value</Typography>
           {report.byValue.length === 0 ? (
             <Typography color="text.secondary">No cards in this period.</Typography>
           ) : (
-            <TableContainer component={Paper} elevation={1}>
-              <Table size="small">
+            <TableContainer component={Paper} elevation={1} sx={{ overflowX: 'auto' }}>
+              <Table size="small" sx={{ minWidth: 400 }}>
                 <TableHead>
                   <TableRow sx={{ '& th': { fontWeight: 700 } }}>
                     <TableCell>Card Value</TableCell>
-                    <TableCell align="right">Cards Bought</TableCell>
-                    <TableCell align="right">Total Spent</TableCell>
-                    <TableCell align="right">Total Won</TableCell>
+                    <TableCell align="right">Cards</TableCell>
+                    <TableCell align="right">Spent</TableCell>
+                    <TableCell align="right">Won</TableCell>
                     <TableCell align="right">Net</TableCell>
                   </TableRow>
                 </TableHead>

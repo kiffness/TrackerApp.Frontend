@@ -9,7 +9,7 @@ export default defineConfig({
       // Forward all /api requests to the .NET backend in development.
       // This makes cookies same-origin so SameSite=Strict works without CORS issues.
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'http://localhost:5178',
         changeOrigin: true,
       },
     },

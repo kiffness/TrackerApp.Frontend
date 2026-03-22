@@ -20,7 +20,11 @@ import CasinoIcon from '@mui/icons-material/Casino';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import LogoutIcon from '@mui/icons-material/Logout';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import { useTheme } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
+import { useColorMode } from '../contexts/ColorModeContext';
 
 const DRAWER_WIDTH = 220;
 
@@ -34,6 +38,8 @@ const navItems = [
 export default function Layout() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { logout } = useAuth();
+  const { toggleColorMode } = useColorMode();
+  const theme = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -83,6 +89,11 @@ export default function Layout() {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" sx={{ flexGrow: 1 }}>TrackerApp</Typography>
+          <Tooltip title={theme.palette.mode === 'dark' ? 'Light mode' : 'Dark mode'}>
+            <IconButton color="inherit" onClick={toggleColorMode}>
+              {theme.palette.mode === 'dark' ? <LightModeIcon /> : <DarkModeIcon />}
+            </IconButton>
+          </Tooltip>
           <Tooltip title="Logout">
             <IconButton color="inherit" onClick={handleLogout}>
               <LogoutIcon />

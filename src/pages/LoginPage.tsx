@@ -43,10 +43,11 @@ export default function LoginPage() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        bgcolor: 'grey.100',
+        bgcolor: 'background.default',
+        px: 2,
       }}
     >
-      <Card sx={{ width: 360 }} elevation={3}>
+      <Card sx={{ width: '100%', maxWidth: 360 }} elevation={3}>
         <CardContent sx={{ p: 4 }}>
           <Stack alignItems="center" spacing={1} mb={3}>
             <FavoriteIcon color="primary" sx={{ fontSize: 40 }} />

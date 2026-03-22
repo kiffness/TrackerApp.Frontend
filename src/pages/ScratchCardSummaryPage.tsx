@@ -68,9 +68,16 @@ export default function ScratchCardSummaryPage() {
 
   return (
     <Box>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+      <Box
+        display="flex"
+        flexDirection={{ xs: 'column', sm: 'row' }}
+        justifyContent="space-between"
+        alignItems={{ xs: 'flex-start', sm: 'center' }}
+        gap={2}
+        mb={3}
+      >
         <Typography variant="h5" fontWeight={700}>Scratch Card Summary</Typography>
-        <FormControl size="small" sx={{ minWidth: 140 }}>
+        <FormControl size="small" sx={{ minWidth: 140, alignSelf: { xs: 'stretch', sm: 'auto' } }}>
           <InputLabel>Period</InputLabel>
           <Select
             value={period}
