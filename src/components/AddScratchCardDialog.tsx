@@ -6,10 +6,16 @@ import {
   DialogContent,
   DialogTitle,
   TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
   Stack,
   Alert,
 } from '@mui/material';
 import * as api from '../api/scratchCards.api';
+
+const CARD_VALUES = [1, 2, 3, 5];
 
 interface Props {
   open: boolean;
@@ -18,7 +24,7 @@ interface Props {
 }
 
 export default function AddScratchCardDialog({ open, onClose, onAdded }: Props) {
-  const [cost, setCost] = useState('');
+  const [cost, setCost] = useState<number | ''>('');
   const [winnings, setWinnings] = useState('');
   const [purchasedAt, setPurchasedAt] = useState('');
   const [notes, setNotes] = useState('');
@@ -36,7 +42,7 @@ export default function AddScratchCardDialog({ open, onClose, onAdded }: Props) 
     setLoading(true);
     try {
       await api.add({
-        cost: Number(cost),
+        cost: cost as number,
         winnings: Number(winnings),
         purchasedAt: purchasedAt ? new Date(purchasedAt).toISOString() : null,
         notes: notes || null,
@@ -57,15 +63,18 @@ export default function AddScratchCardDialog({ open, onClose, onAdded }: Props) 
       <DialogContent>
         <Stack spacing={2} mt={1}>
           {error && <Alert severity="error">{error}</Alert>}
-          <TextField
-            label="Cost (£)"
-            type="number"
-            value={cost}
-            onChange={(e) => setCost(e.target.value)}
-            required
-            fullWidth
-            inputProps={{ min: 0.01, step: 0.01 }}
-          />
+          <FormControl required fullWidth>
+            <InputLabel>Card Value</InputLabel>
+            <Select
+              value={cost}
+              label="Card Value"
+              onChange={(e) => setCost(e.target.value as number)}
+            >
+              {CARD_VALUES.map((v) => (
+                <MenuItem key={v} value={v}>£{v}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           <TextField
             label="Winnings (£)"
             type="number"
@@ -100,7 +109,7 @@ export default function AddScratchCardDialog({ open, onClose, onAdded }: Props) 
         <Button
           onClick={handleSubmit}
           variant="contained"
-          disabled={loading || !cost || winnings === ''}
+          disabled={loading || cost === '' || winnings === ''}
         >
           {loading ? 'Saving…' : 'Save'}
         </Button>

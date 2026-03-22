@@ -8,6 +8,7 @@ import LoginPage from './pages/LoginPage';
 import BloodPressurePage from './pages/BloodPressurePage';
 import ScratchCardsPage from './pages/ScratchCardsPage';
 import ScratchCardSummaryPage from './pages/ScratchCardSummaryPage';
+import ScratchCardReportsPage from './pages/ScratchCardReportsPage';
 
 export default function App() {
   return (
@@ -28,6 +29,7 @@ export default function App() {
               <Route path="/blood-pressure" element={<BloodPressurePage />} />
               <Route path="/scratch-cards" element={<ScratchCardsPage />} />
               <Route path="/scratch-cards/summary" element={<ScratchCardSummaryPage />} />
+              <Route path="/scratch-cards/reports" element={<ScratchCardReportsPage />} />
             </Route>
           </Routes>
         </BrowserRouter>

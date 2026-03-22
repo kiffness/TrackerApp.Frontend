@@ -35,3 +35,24 @@ export interface ScratchCardSummary {
 }
 
 export type SummaryPeriod = 'day' | 'week' | 'month' | 'year' | 'all';
+
+export interface ScratchCardValueBreakdown {
+  cardValue: number;
+  count: number;
+  totalSpent: number;
+  totalWon: number;
+  net: number;
+}
+
+export interface ScratchCardReport {
+  totalSpent: number;
+  totalWon: number;
+  netProfit: number;
+  cardCount: number;
+  period: string;
+  from: string | null;
+  to: string | null;
+  byValue: ScratchCardValueBreakdown[];
+}
+
+export type ReportPeriod = 'week' | 'month' | 'year' | 'all';

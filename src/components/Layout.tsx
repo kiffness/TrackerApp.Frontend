@@ -18,6 +18,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import CasinoIcon from '@mui/icons-material/Casino';
 import BarChartIcon from '@mui/icons-material/BarChart';
+import AssessmentIcon from '@mui/icons-material/Assessment';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -27,6 +28,7 @@ const navItems = [
   { label: 'Blood Pressure', path: '/blood-pressure', icon: <FavoriteIcon /> },
   { label: 'Scratch Cards', path: '/scratch-cards', icon: <CasinoIcon /> },
   { label: 'Summary', path: '/scratch-cards/summary', icon: <BarChartIcon /> },
+  { label: 'Reports', path: '/scratch-cards/reports', icon: <AssessmentIcon /> },
 ];
 
 export default function Layout() {
