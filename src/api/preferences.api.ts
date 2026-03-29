@@ -3,6 +3,8 @@ import type { ApiResult } from '../types/api.types';
 
 export interface UserPreferences {
   theme: string;
+  morningReminderTime: string | null;
+  eveningReminderTime: string | null;
 }
 
 export const get = () =>
@@ -10,3 +12,6 @@ export const get = () =>
 
 export const update = (theme: string) =>
   client.put<ApiResult<UserPreferences>>('/api/preferences', { theme });
+
+export const updateReminders = (morningReminderTime: string | null, eveningReminderTime: string | null) =>
+  client.put<ApiResult<UserPreferences>>('/api/preferences/reminders', { morningReminderTime, eveningReminderTime });

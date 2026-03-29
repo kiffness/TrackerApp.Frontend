@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Alert,
   Box,
+  Button,
   Card,
   CardActionArea,
   CardContent,
@@ -10,6 +11,7 @@ import {
   Grid,
   Snackbar,
   Switch,
+  TextField,
   Typography,
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -20,6 +22,7 @@ import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
 import { THEMES, type ThemeId } from '../theme';
 import { useAppTheme } from '../contexts/ThemeContext';
 import { usePushNotifications } from '../hooks/usePushNotifications';
+import * as preferencesApi from '../api/preferences.api';
 
 export default function SettingsPage() {
   const { themeId, saveThemeToApi } = useAppTheme();
@@ -27,6 +30,26 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+
+  const [morningEnabled, setMorningEnabled] = useState(false);
+  const [morningTime, setMorningTime] = useState('08:00');
+  const [eveningEnabled, setEveningEnabled] = useState(false);
+  const [eveningTime, setEveningTime] = useState('20:00');
+  const [reminderSaving, setReminderSaving] = useState(false);
+
+  useEffect(() => {
+    preferencesApi.get().then((res) => {
+      const prefs = res.data.value;
+      if (prefs.morningReminderTime) {
+        setMorningEnabled(true);
+        setMorningTime(prefs.morningReminderTime);
+      }
+      if (prefs.eveningReminderTime) {
+        setEveningEnabled(true);
+        setEveningTime(prefs.eveningReminderTime);
+      }
+    }).catch(() => {});
+  }, []);
 
   const handleSelect = async (id: ThemeId) => {
     if (id === themeId || saving) return;
@@ -39,6 +62,22 @@ export default function SettingsPage() {
       setError('Failed to save theme.');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleSaveReminders = async () => {
+    setReminderSaving(true);
+    setError('');
+    try {
+      await preferencesApi.updateReminders(
+        morningEnabled ? morningTime : null,
+        eveningEnabled ? eveningTime : null,
+      );
+      setSuccess(true);
+    } catch {
+      setError('Failed to save reminders.');
+    } finally {
+      setReminderSaving(false);
     }
   };
 
@@ -90,6 +129,7 @@ export default function SettingsPage() {
       ) : (
         <Box>
           {push.error && <Alert severity="error" sx={{ mb: 2 }} onClose={() => {}}>{push.error}</Alert>}
+
           <Box display="flex" alignItems="center" justifyContent="space-between"
             sx={{ p: 2, border: 1, borderColor: 'divider', borderRadius: 2 }}>
             <Box display="flex" alignItems="center" gap={1.5}>
@@ -100,8 +140,8 @@ export default function SettingsPage() {
                 <Typography fontWeight={600}>Blood Pressure Reminders</Typography>
                 <Typography variant="body2" color="text.secondary">
                   {push.isSubscribed
-                    ? 'You will receive a daily reminder to log your blood pressure.'
-                    : 'Get a daily reminder to log your blood pressure.'}
+                    ? 'You will receive reminders to log your blood pressure.'
+                    : 'Get reminders to log your blood pressure.'}
                 </Typography>
               </Box>
             </Box>
@@ -114,6 +154,58 @@ export default function SettingsPage() {
               />
             )}
           </Box>
+
+          {push.isSubscribed && (
+            <Box sx={{ mt: 2, p: 2, border: 1, borderColor: 'divider', borderRadius: 2 }}>
+              <Typography variant="subtitle2" fontWeight={600} mb={2}>Reminder Times</Typography>
+
+              <Box display="flex" alignItems="center" gap={2} mb={2}>
+                <Switch
+                  checked={morningEnabled}
+                  onChange={(e) => setMorningEnabled(e.target.checked)}
+                  size="small"
+                />
+                <Typography variant="body2" sx={{ minWidth: 80 }}>Morning</Typography>
+                <TextField
+                  type="time"
+                  size="small"
+                  value={morningTime}
+                  onChange={(e) => setMorningTime(e.target.value)}
+                  disabled={!morningEnabled}
+                  inputProps={{ step: 300 }}
+                  sx={{ width: 140 }}
+                />
+              </Box>
+
+              <Box display="flex" alignItems="center" gap={2} mb={2.5}>
+                <Switch
+                  checked={eveningEnabled}
+                  onChange={(e) => setEveningEnabled(e.target.checked)}
+                  size="small"
+                />
+                <Typography variant="body2" sx={{ minWidth: 80 }}>Evening</Typography>
+                <TextField
+                  type="time"
+                  size="small"
+                  value={eveningTime}
+                  onChange={(e) => setEveningTime(e.target.value)}
+                  disabled={!eveningEnabled}
+                  inputProps={{ step: 300 }}
+                  sx={{ width: 140 }}
+                />
+              </Box>
+
+              <Button
+                variant="contained"
+                size="small"
+                onClick={handleSaveReminders}
+                disabled={reminderSaving}
+                startIcon={reminderSaving ? <CircularProgress size={14} /> : null}
+              >
+                Save reminders
+              </Button>
+            </Box>
+          )}
         </Box>
       )}
 
@@ -121,7 +213,7 @@ export default function SettingsPage() {
         open={success}
         autoHideDuration={2000}
         onClose={() => setSuccess(false)}
-        message="Theme saved"
+        message="Saved"
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       />
     </Box>
